@@ -5,22 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonaBrookies</title>
     
-    <!-- ========== META TAGS PWA ========== -->
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#a5784f">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Dona Brookies">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Dona Brookies">
-    <meta name="msapplication-TileColor" content="#a5784f">
-    
-    <!-- Web App Manifest -->
+    <meta name="description" content="Brownies e cookies feitos com amor e crocância!">
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Ícones para Apple -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     
-    <!-- CSS e Fontes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -40,124 +31,6 @@
             background-color: var(--urbanz-cream);
         }
         
-        /* ========== ESTILOS PWA ========== */
-        .pwa-standalone {
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-        }
-
-        /* Melhorar experiência em modo standalone */
-        @media all and (display-mode: standalone) {
-            body {
-                -webkit-user-select: none;
-                user-select: none;
-                -webkit-touch-callout: none;
-            }
-            
-            /* Esconder barra de endereço no iOS */
-            @supports (-webkit-touch-callout: none) {
-                body {
-                    height: 100vh;
-                    height: -webkit-fill-available;
-                }
-            }
-        }
-
-        /* Botão de instalação do PWA */
-        #install-pwa-btn {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background: var(--urbanz-primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 40;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        #install-pwa-btn:hover {
-            transform: scale(1.1);
-        }
-
-        /* Banner de instalação */
-        .pwa-install-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 16px;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            display: none;
-        }
-
-        .pwa-install-banner.show {
-            display: block;
-        }
-
-        .pwa-install-banner .banner-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .pwa-install-banner .app-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-        }
-
-        .pwa-install-banner .banner-text {
-            flex: 1;
-        }
-
-        .pwa-install-banner .banner-text h4 {
-            margin: 0;
-            font-weight: 600;
-        }
-
-        .pwa-install-banner .banner-text p {
-            margin: 2px 0 0 0;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .pwa-install-banner .banner-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* Botão de sair do app (modo PWA) */
-        #pwa-exit-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(239, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        /* SEUS ESTILOS ORIGINAIS (MANTIDOS) */
         .login-container {
             min-height: 100vh;
             display: flex;
@@ -1060,29 +933,113 @@
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
+
+        /* PWA Install Prompt */
+        .pwa-install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            display: none;
+            border: 2px solid var(--urbanz-primary);
+        }
+
+        .pwa-install-prompt.show {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .pwa-prompt-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pwa-prompt-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: var(--urbanz-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .pwa-prompt-text {
+            flex: 1;
+        }
+
+        .pwa-prompt-text h4 {
+            margin: 0 0 4px 0;
+            font-weight: 600;
+            color: var(--urbanz-dark);
+        }
+
+        .pwa-prompt-text p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .pwa-prompt-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pwa-prompt-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pwa-prompt-install {
+            background: var(--urbanz-primary);
+            color: white;
+        }
+
+        .pwa-prompt-install:hover {
+            background: var(--urbanz-dark);
+        }
+
+        .pwa-prompt-dismiss {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .pwa-prompt-dismiss:hover {
+            background: #e5e7eb;
+        }
     </style>
 </head>
 <body>
-    <!-- ========== BOTÕES PWA ========== -->
-    <button id="install-pwa-btn" title="Instalar App">
-        <i class="fas fa-download"></i>
-    </button>
-
-    <button id="pwa-exit-btn" title="Fechar App">
-        <i class="fas fa-times"></i>
-    </button>
-
-    <!-- Banner de instalação PWA -->
-    <div id="pwa-install-banner" class="pwa-install-banner">
-        <div class="banner-content">
-            <img src="icons/icon-192x192.png" alt="Dona Brookies" class="app-icon">
-            <div class="banner-text">
-                <h4>Dona Brookies</h4>
-                <p>Instale nosso app para uma experiência melhor</p>
+    <!-- PWA Install Prompt -->
+    <div id="pwa-install-prompt" class="pwa-install-prompt">
+        <div class="pwa-prompt-content">
+            <div class="pwa-prompt-icon">
+                <i class="fas fa-download"></i>
             </div>
-            <div class="banner-actions">
-                <button id="pwa-install-cancel" class="px-3 py-1 border border-gray-300 rounded text-sm">Agora não</button>
-                <button id="pwa-install-confirm" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Instalar</button>
+            <div class="pwa-prompt-text">
+                <h4>Instalar App</h4>
+                <p>Instale o Dona Brookies no seu dispositivo para uma experiência melhor</p>
+            </div>
+            <div class="pwa-prompt-actions">
+                <button id="pwa-dismiss-btn" class="pwa-prompt-btn pwa-prompt-dismiss">Agora não</button>
+                <button id="pwa-install-btn" class="pwa-prompt-btn pwa-prompt-install">Instalar</button>
             </div>
         </div>
     </div>
@@ -1781,255 +1738,73 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    
-    <!-- ========== CÓDIGO PWA ========== -->
     <script>
-        // ===== SISTEMA PWA =====
-        
-        // Registrar Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('✅ Service Worker registrado com sucesso:', registration.scope);
-                        
-                        // Solicitar permissão para notificações
-                        requestNotificationPermission();
-                        
-                        // Verificar se há atualizações
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            console.log('🔄 Nova versão do Service Worker encontrada!');
-                            
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('🔄 Nova versão disponível! Recarregue para atualizar.');
-                                    showUpdateNotification();
-                                }
-                            });
-                        });
-                    })
-                    .catch(function(error) {
-                        console.log('❌ Falha no registro do Service Worker:', error);
-                    });
-            });
-
-            // Ouvir mensagens do Service Worker
-            navigator.serviceWorker.addEventListener('message', event => {
-                console.log('📨 Mensagem do Service Worker:', event.data);
-                
-                if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') {
-                    showUpdateNotification();
-                }
-            });
-        }
-
-        // ===== INSTALAÇÃO DO PWA =====
-        let deferredPrompt;
-        let installButton;
-
-        // Criar botão de instalação
-        function createInstallButton() {
-            installButton = document.getElementById('install-pwa-btn');
-            
-            installButton.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
-                
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                
-                if (outcome === 'accepted') {
-                    console.log('✅ Usuário aceitou instalar o PWA');
-                    installButton.style.display = 'none';
-                }
-                
-                deferredPrompt = null;
-            });
-        }
-
-        // Ouvir evento beforeinstallprompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('🎯 Evento beforeinstallprompt disparado');
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Mostrar botão de instalação
-            if (installButton) {
-                installButton.style.display = 'flex';
-            }
-        });
-
-        // Usuário instalou o PWA
-        window.addEventListener('appinstalled', (e) => {
-            console.log('🎉 PWA instalado com sucesso!');
-            deferredPrompt = null;
-            
-            // Esconder botão
-            if (installButton) {
-                installButton.style.display = 'none';
-            }
-            
-            // Track installation
-            trackPWAInstallation();
-        });
-
-        // ===== NOTIFICAÇÕES PUSH =====
-        
-        // Solicitar permissão para notificações
-        function requestNotificationPermission() {
-            if ('Notification' in window && Notification.permission === 'default') {
-                // Aguardar um momento antes de pedir permissão
-                setTimeout(() => {
-                    Notification.requestPermission().then(permission => {
-                        if (permission === 'granted') {
-                            console.log('✅ Permissão para notificações concedida!');
-                            subscribeToPushNotifications();
-                        }
-                    });
-                }, 5000); // 5 segundos depois
-            }
-        }
-
-        // Inscrever para notificações push
-        async function subscribeToPushNotifications() {
-            if ('serviceWorker' in navigator && 'PushManager' in window) {
-                try {
-                    const registration = await navigator.serviceWorker.ready;
-                    const subscription = await registration.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlBase64ToUint8Array('BEoFZR9wXqL2T7m4N1kP8vG3cH6jY5xW0zQaSbRdCfEuItMnOgVlXiKhJpLyAwU')
-                    });
-                    
-                    console.log('✅ Inscrito para notificações push:', subscription);
-                    
-                    // Enviar subscription para seu backend
-                    await sendSubscriptionToBackend(subscription);
-                    
-                } catch (error) {
-                    console.error('❌ Erro na inscrição de notificações:', error);
-                }
-            }
-        }
-
-        // Converter chave pública para Uint8Array
-        function urlBase64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding)
-                .replace(/\-/g, '+')
-                .replace(/_/g, '/');
-
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray;
-        }
-
-        // Enviar subscription para o backend
-        async function sendSubscriptionToBackend(subscription) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/push/subscribe`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify({ subscription })
-                });
-                
-                if (response.ok) {
-                    console.log('✅ Subscription enviada para o backend');
-                }
-            } catch (error) {
-                console.error('❌ Erro ao enviar subscription:', error);
-            }
-        }
-
-        // ===== FUNÇÕES UTILITÁRIAS PWA =====
-        
-        // Mostrar notificação de atualização
-        function showUpdateNotification() {
-            if ('serviceWorker' in navigator) {
-                const updateToast = document.createElement('div');
-                updateToast.className = 'fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
-                updateToast.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <i class="fas fa-sync-alt mr-2"></i>
-                            <span>Nova versão disponível!</span>
-                        </div>
-                        <button onclick="location.reload()" class="ml-4 bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium">
-                            Atualizar
-                        </button>
-                    </div>
-                `;
-                
-                document.body.appendChild(updateToast);
-                
-                // Auto-remover após 10 segundos
-                setTimeout(() => {
-                    if (updateToast.parentNode) {
-                        updateToast.parentNode.removeChild(updateToast);
-                    }
-                }, 10000);
-            }
-        }
-
-        // Detectar se está em modo standalone (app instalado)
-        function detectStandaloneMode() {
-            if (window.matchMedia('(display-mode: standalone)').matches || 
-                window.navigator.standalone === true) {
-                console.log('📱 Executando em modo PWA (standalone)');
-                document.body.classList.add('pwa-standalone');
-                
-                // Mostrar botão de sair do app
-                const exitBtn = document.getElementById('pwa-exit-btn');
-                if (exitBtn) {
-                    exitBtn.style.display = 'flex';
-                    exitBtn.onclick = () => {
-                        if (confirm('Deseja fechar o aplicativo?')) {
-                            window.close();
-                        }
-                    };
-                }
-            }
-        }
-
-        // Rastrear instalações
-        function trackPWAInstallation() {
-            console.log('📊 PWA instalado - evento registrado');
-            // Aqui você pode enviar para Google Analytics ou similar
-        }
-
-        // ===== INICIALIZAÇÃO PWA =====
-        
-        // Inicializar quando o DOM estiver pronto
-        document.addEventListener('DOMContentLoaded', function() {
-            createInstallButton();
-            detectStandaloneMode();
-            
-            // Ouvir mudanças no display mode
-            window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
-                if (e.matches) {
-                    document.body.classList.add('pwa-standalone');
-                    const exitBtn = document.getElementById('pwa-exit-btn');
-                    if (exitBtn) exitBtn.style.display = 'flex';
-                } else {
-                    document.body.classList.remove('pwa-standalone');
-                    const exitBtn = document.getElementById('pwa-exit-btn');
-                    if (exitBtn) exitBtn.style.display = 'none';
-                }
-            });
-        });
-
         // ===== CONFIGURAÇÕES =====
         const WHATSAPP_NUMBER = "5584996933713";
         const IS_DEVELOPMENT = false;
         // ATUALIZE ESTA URL PARA SEU BACKEND NO RENDER
         const API_BASE_URL = "https://backend-donabrokies.onrender.com";
         const DELIVERY_FEE = 3.00; // Taxa de entrega de R$ 3,00
+
+        // ===== SISTEMA DE PWA =====
+        let deferredPrompt;
+        const pwaInstallPrompt = document.getElementById('pwa-install-prompt');
+        const pwaInstallBtn = document.getElementById('pwa-install-btn');
+        const pwaDismissBtn = document.getElementById('pwa-dismiss-btn');
+
+        // Evento para capturar o prompt de instalação
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar o prompt personalizado após 3 segundos
+            setTimeout(() => {
+                if (!localStorage.getItem('pwaDismissed')) {
+                    pwaInstallPrompt.classList.add('show');
+                }
+            }, 3000);
+        });
+
+        // Instalar PWA
+        pwaInstallBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('PWA instalado com sucesso');
+                }
+                
+                pwaInstallPrompt.classList.remove('show');
+                deferredPrompt = null;
+            }
+        });
+
+        // Dispensar prompt
+        pwaDismissBtn.addEventListener('click', () => {
+            pwaInstallPrompt.classList.remove('show');
+            localStorage.setItem('pwaDismissed', 'true');
+        });
+
+        // Verificar se já está instalado
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA instalado');
+            localStorage.setItem('pwaInstalled', 'true');
+            pwaInstallPrompt.classList.remove('show');
+        });
+
+        // ===== SERVICE WORKER REGISTRATION =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registrado com sucesso:', registration);
+                    })
+                    .catch((error) => {
+                        console.log('Falha ao registrar Service Worker:', error);
+                    });
+            });
+        }
 
         // ===== SISTEMA DE AUTENTICAÇÃO =====
         function simpleEncrypt(text) {
