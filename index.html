@@ -11,8 +11,8 @@
     <link rel="manifest" href="manifest.json">
     
     <!-- Ícones PWA -->
-    <link rel="icon" href="imagem_72x72.png" type="image/png">
-    <link rel="apple-touch-icon" href="imagem_192x192.png">
+    <link rel="icon" href="icons/icon-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     
     <!-- CSS e Fontes -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,6 +32,70 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--urbanz-cream);
+        }
+        
+        /* Tela de Boas-Vindas - APENAS PARA APP */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--urbanz-primary) 0%, var(--urbanz-dark) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .welcome-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .welcome-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        .welcome-title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .welcome-subtitle {
+            color: var(--urbanz-light);
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .login-container {
@@ -939,6 +1003,14 @@
     </style>
 </head>
 <body>
+    <!-- Tela de Boas-Vindas - APENAS PARA APP -->
+    <div id="welcome-screen" class="welcome-screen">
+        <img src="WhatsApp Image 2025-10-16 at 14.55.25.jpeg" alt="Dona Brookies" class="welcome-logo">
+        <h1 class="welcome-title">Dona Brookies</h1>
+        <p class="welcome-subtitle">Bem-vindo à nossa doceria!</p>
+        <div class="loading-spinner"></div>
+    </div>
+
     <!-- Notificação Toast -->
     <div id="toast-notification" class="toast-notification">
         <button class="close-toast" onclick="hideToast()">×</button>
@@ -1773,6 +1845,7 @@
             storeSection: document.getElementById('store-section'),
             cartSection: document.getElementById('cart-section'),
             adminSection: document.getElementById('admin-section'),
+            welcomeScreen: document.getElementById('welcome-screen'),
             
             // Login
             username: document.getElementById('username'),
@@ -1906,6 +1979,25 @@
 
         function hideToast() {
             elements.toastNotification.classList.remove('show');
+        }
+
+        // ===== FUNÇÃO PARA VERIFICAR SE É APP INSTALADO =====
+        function isStandaloneApp() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true ||
+                   document.referrer.includes('android-app://');
+        }
+
+        // ===== FUNÇÃO PARA ESCONDER TELA DE BOAS-VINDAS =====
+        function hideWelcomeScreen() {
+            if (elements.welcomeScreen) {
+                elements.welcomeScreen.classList.add('hidden');
+                setTimeout(() => {
+                    if (elements.welcomeScreen.parentNode) {
+                        elements.welcomeScreen.parentNode.removeChild(elements.welcomeScreen);
+                    }
+                }, 500);
+            }
         }
 
         // ===== UTILITÁRIOS DE IMAGEM =====
@@ -2154,6 +2246,10 @@
                 });
                 
                 filteredProducts = [...products.filter(p => p.status === 'active')];
+                
+                // ESCONDER TELA DE BOAS-VINDAS QUANDO OS DADOS CARREGAREM
+                hideWelcomeScreen();
+                
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
                 
@@ -2215,6 +2311,9 @@
                 ];
                 
                 filteredProducts = [...products.filter(p => p.status === 'active')];
+                
+                // ESCONDER TELA DE BOAS-VINDAS MESMO COM ERRO
+                hideWelcomeScreen();
             }
         }
 
@@ -2346,6 +2445,13 @@
 
         // ===== INICIALIZAÇÃO =====
         async function init() {
+            // VERIFICAR SE É APP INSTALADO
+            if (!isStandaloneApp()) {
+                // Se não for app, esconder tela de boas-vindas imediatamente
+                hideWelcomeScreen();
+            }
+            // Se for app, a tela de boas-vindas permanece até os dados carregarem
+            
             await loadData();
             setupRouting();
             setupEventListeners();
