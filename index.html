@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#a5784f">
+    <meta name="description" content="Dona Brookies - Brownies e cookies feitos com amor e crocância!">
     <title>DonaBrookies</title>
     
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#a5784f">
-    <meta name="description" content="Brownies e cookies feitos com amor e crocância!">
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Ícones PWA -->
+    <link rel="icon" href="icons/icon-72x72.png" type="image/png">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     
+    <!-- CSS e Fontes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -933,117 +936,9 @@
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-
-        /* PWA Install Prompt */
-        .pwa-install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            z-index: 10000;
-            display: none;
-            border: 2px solid var(--urbanz-primary);
-        }
-
-        .pwa-install-prompt.show {
-            display: block;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .pwa-prompt-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .pwa-prompt-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            background: var(--urbanz-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-        }
-
-        .pwa-prompt-text {
-            flex: 1;
-        }
-
-        .pwa-prompt-text h4 {
-            margin: 0 0 4px 0;
-            font-weight: 600;
-            color: var(--urbanz-dark);
-        }
-
-        .pwa-prompt-text p {
-            margin: 0;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .pwa-prompt-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .pwa-prompt-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .pwa-prompt-install {
-            background: var(--urbanz-primary);
-            color: white;
-        }
-
-        .pwa-prompt-install:hover {
-            background: var(--urbanz-dark);
-        }
-
-        .pwa-prompt-dismiss {
-            background: #f3f4f6;
-            color: #374151;
-        }
-
-        .pwa-prompt-dismiss:hover {
-            background: #e5e7eb;
-        }
     </style>
 </head>
 <body>
-    <!-- PWA Install Prompt -->
-    <div id="pwa-install-prompt" class="pwa-install-prompt">
-        <div class="pwa-prompt-content">
-            <div class="pwa-prompt-icon">
-                <i class="fas fa-download"></i>
-            </div>
-            <div class="pwa-prompt-text">
-                <h4>Instalar App</h4>
-                <p>Instale o Dona Brookies no seu dispositivo para uma experiência melhor</p>
-            </div>
-            <div class="pwa-prompt-actions">
-                <button id="pwa-dismiss-btn" class="pwa-prompt-btn pwa-prompt-dismiss">Agora não</button>
-                <button id="pwa-install-btn" class="pwa-prompt-btn pwa-prompt-install">Instalar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Notificação Toast -->
     <div id="toast-notification" class="toast-notification">
         <button class="close-toast" onclick="hideToast()">×</button>
@@ -1745,66 +1640,6 @@
         // ATUALIZE ESTA URL PARA SEU BACKEND NO RENDER
         const API_BASE_URL = "https://backend-donabrokies.onrender.com";
         const DELIVERY_FEE = 3.00; // Taxa de entrega de R$ 3,00
-
-        // ===== SISTEMA DE PWA =====
-        let deferredPrompt;
-        const pwaInstallPrompt = document.getElementById('pwa-install-prompt');
-        const pwaInstallBtn = document.getElementById('pwa-install-btn');
-        const pwaDismissBtn = document.getElementById('pwa-dismiss-btn');
-
-        // Evento para capturar o prompt de instalação
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Mostrar o prompt personalizado após 3 segundos
-            setTimeout(() => {
-                if (!localStorage.getItem('pwaDismissed')) {
-                    pwaInstallPrompt.classList.add('show');
-                }
-            }, 3000);
-        });
-
-        // Instalar PWA
-        pwaInstallBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                
-                if (outcome === 'accepted') {
-                    console.log('PWA instalado com sucesso');
-                }
-                
-                pwaInstallPrompt.classList.remove('show');
-                deferredPrompt = null;
-            }
-        });
-
-        // Dispensar prompt
-        pwaDismissBtn.addEventListener('click', () => {
-            pwaInstallPrompt.classList.remove('show');
-            localStorage.setItem('pwaDismissed', 'true');
-        });
-
-        // Verificar se já está instalado
-        window.addEventListener('appinstalled', () => {
-            console.log('PWA instalado');
-            localStorage.setItem('pwaInstalled', 'true');
-            pwaInstallPrompt.classList.remove('show');
-        });
-
-        // ===== SERVICE WORKER REGISTRATION =====
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then((registration) => {
-                        console.log('Service Worker registrado com sucesso:', registration);
-                    })
-                    .catch((error) => {
-                        console.log('Falha ao registrar Service Worker:', error);
-                    });
-            });
-        }
 
         // ===== SISTEMA DE AUTENTICAÇÃO =====
         function simpleEncrypt(text) {
@@ -4236,6 +4071,22 @@
 
         // ===== INICIALIZAR APLICAÇÃO =====
         init();
+    </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('Service Worker registrado com sucesso:', registration);
+                    })
+                    .catch(function(error) {
+                        console.log('Falha ao registrar Service Worker:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>

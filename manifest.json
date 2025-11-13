@@ -1,6 +1,6 @@
 {
   "name": "Dona Brookies",
-  "short_name": "DonaBrookies",
+  "short_name": "Dona Brookies",
   "description": "Brownies e cookies feitos com amor e crocância!",
   "start_url": "/",
   "display": "standalone",
@@ -58,20 +58,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "screenshots/screenshot1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "screenshots/screenshot2.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
     }
   ]
 }
