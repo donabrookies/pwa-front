@@ -41,9 +41,11 @@
             -ms-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            /* CORREÇÃO PARA iOS - EVITAR TELA PRETA */
+            background: linear-gradient(135deg, var(--urbanz-primary) 0%, var(--urbanz-dark) 100%);
         }
         
-        /* Tela de Boas-Vindas - APENAS PARA APP */
+        /* Tela de Boas-Vindas - CORREÇÃO PARA iOS */
         .welcome-screen {
             position: fixed;
             top: 0;
@@ -60,6 +62,9 @@
             /* GARANTIR QUE A TELA DE BOAS-VINDAS SEMPRE APAREÇA PRIMEIRO */
             opacity: 1;
             visibility: visible;
+            /* CORREÇÃO iOS - EVITAR FLICKER */
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
         
         .welcome-screen.hidden {
@@ -1054,10 +1059,26 @@
                 font-size: 16px !important; /* Prevenir zoom no iOS */
             }
         }
+
+        /* ===== CORREÇÃO iOS - TELA PRETA ===== */
+        #store-section,
+        #cart-section,
+        #admin-section,
+        #login-section {
+            display: none;
+            background-color: var(--urbanz-cream);
+        }
+
+        #store-section.active,
+        #cart-section.active,
+        #admin-section.active,
+        #login-section.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <!-- Tela de Boas-Vindas - APENAS PARA APP -->
+    <!-- Tela de Boas-Vindas - CORREÇÃO iOS -->
     <div id="welcome-screen" class="welcome-screen">
         <img src="WhatsApp Image 2025-10-16 at 14.55.25.jpeg" alt="Dona Brookies" class="welcome-logo">
         <h1 class="welcome-title">Dona Brookies</h1>
@@ -2499,6 +2520,9 @@
 
         // ===== INICIALIZAÇÃO =====
         async function init() {
+            // CORREÇÃO iOS: Configurar background imediatamente para evitar tela preta
+            document.body.style.backgroundColor = 'var(--urbanz-cream)';
+            
             // VERIFICAR SE É APP INSTALADO
             if (!isStandaloneApp()) {
                 // Se não for app, esconder tela de boas-vindas imediatamente
