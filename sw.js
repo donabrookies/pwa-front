@@ -1,48 +1,46 @@
-const CACHE_NAME = 'dona-brookies-v1.0.0';
+// Service Worker para Dona Brookies PWA
+const CACHE_NAME = 'dona-brookies-v2.1.0';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icons/icon-72x72.png',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'
 ];
 
 // Instalação do Service Worker
-self.addEventListener('install', function(event) {
+self.addEventListener('install', event => {
   console.log('Service Worker instalando...');
-  
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(function(cache) {
+      .then(cache => {
         console.log('Cache aberto');
         return cache.addAll(urlsToCache);
       })
-      .then(function() {
+      .then(() => {
         console.log('Todos os recursos cacheados com sucesso');
         return self.skipWaiting();
       })
-      .catch(function(error) {
-        console.log('Falha ao fazer cache dos recursos:', error);
+      .catch(error => {
+        console.error('Falha ao cachear recursos:', error);
       })
   );
 });
 
 // Ativação do Service Worker
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', event => {
   console.log('Service Worker ativando...');
-  
   event.waitUntil(
-    caches.keys().then(function(cacheNames) {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(function(cacheName) {
+        cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
             console.log('Deletando cache antigo:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(function() {
+    }).then(() => {
       console.log('Service Worker ativado');
       return self.clients.claim();
     })
@@ -50,58 +48,55 @@ self.addEventListener('activate', function(event) {
 });
 
 // Interceptação de requisições
-self.addEventListener('fetch', function(event) {
-  // Não cachear requisições para a API
-  if (event.request.url.includes('/api/')) {
+self.addEventListener('fetch', event => {
+  // Evitar cache de requisições para a API
+  if (event.request.url.includes('/api/') || 
+      event.request.url.includes('supabase.co') ||
+      event.request.url.includes('vercel.app')) {
     return;
   }
-  
+
   event.respondWith(
     caches.match(event.request)
-      .then(function(response) {
-        // Cache hit - retorna resposta do cache
+      .then(response => {
+        // Retorna o recurso do cache se encontrado
         if (response) {
           return response;
         }
-        
+
         // Clona a requisição porque ela é um stream e só pode ser consumida uma vez
         const fetchRequest = event.request.clone();
-        
-        return fetch(fetchRequest).then(
-          function(response) {
-            // Verifica se recebemos uma resposta válida
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            
-            // Clona a resposta porque ela é um stream e só pode ser consumida uma vez
-            const responseToCache = response.clone();
-            
-            caches.open(CACHE_NAME)
-              .then(function(cache) {
-                // Não cachear requisições para APIs externas
-                if (!event.request.url.includes('cdn.tailwindcss.com') && 
-                    !event.request.url.includes('cdnjs.cloudflare.com') &&
-                    !event.request.url.includes('fonts.googleapis.com') &&
-                    !event.request.url.includes('cdn.jsdelivr.net')) {
-                  cache.put(event.request, responseToCache);
-                }
-              });
-            
+
+        return fetch(fetchRequest).then(response => {
+          // Verifica se recebemos uma resposta válida
+          if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
-        ).catch(function() {
-          // Fallback para página offline
-          if (event.request.destination === 'document') {
+
+          // Clona a resposta porque ela é um stream e só pode ser consumida uma vez
+          const responseToCache = response.clone();
+
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+
+          return response;
+        }).catch(error => {
+          console.log('Fetch falhou; retornando página offline:', error);
+          // Se a fetch falhar e estivermos tentando carregar a página principal,
+          // retorna a página principal do cache
+          if (event.request.mode === 'navigate') {
             return caches.match('/');
           }
         });
-      })
-    );
+      }
+    )
+  );
 });
 
 // Mensagens do Service Worker
-self.addEventListener('message', function(event) {
+self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
