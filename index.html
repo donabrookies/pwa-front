@@ -2704,6 +2704,9 @@
             updateCartUI();
             renderCategories();
             updateCategorySelects();
+            
+            // CORREÇÃO: Mostrar a loja por padrão ao carregar o site
+            showStoreView();
         }
 
         // ===== CONFIGURAÇÃO DE EVENT LISTENERS =====
@@ -3349,7 +3352,7 @@
             if (sortBy === 'price-asc') {
                 filteredProducts.sort((a, b) => a.price - b.price);
             } else if (sortBy === 'price-desc') {
-                filteredProducts.sort((a, b) => b.price - a.price);
+                filteredProducts.sort((a, b) => b.price - b.price);
             } else {
                 // Ordem padrão (display_order)
                 filteredProducts.sort((a, b) => {
