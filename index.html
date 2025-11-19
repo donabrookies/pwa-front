@@ -2656,24 +2656,60 @@
         // ===== FUNÇÕES DE HISTÓRICO DE VENDAS =====
         async function loadSalesHistory() {
             try {
+                // Buscar do backend primeiro
+                const response = await fetch(`${API_BASE_URL}/api/sales-history`);
+                const data = await response.json();
+                
+                if (data.salesHistory && Array.isArray(data.salesHistory)) {
+                    salesHistory = data.salesHistory;
+                    console.log('✅ Histórico de vendas carregado do backend:', salesHistory.length, 'registros');
+                } else {
+                    // Fallback para localStorage
+                    const savedSales = localStorage.getItem('sales_history');
+                    if (savedSales) {
+                        salesHistory = JSON.parse(savedSales);
+                        console.log('📁 Histórico de vendas carregado do localStorage:', salesHistory.length, 'registros');
+                    } else {
+                        salesHistory = [];
+                        console.log('📁 Nenhum histórico de vendas encontrado');
+                    }
+                }
+                renderSalesHistory();
+            } catch (error) {
+                console.error('❌ Erro ao carregar histórico de vendas:', error);
+                // Fallback para localStorage
                 const savedSales = localStorage.getItem('sales_history');
                 if (savedSales) {
                     salesHistory = JSON.parse(savedSales);
                 } else {
                     salesHistory = [];
                 }
-                renderSalesHistory();
-            } catch (error) {
-                console.error('Erro ao carregar histórico de vendas:', error);
-                salesHistory = [];
             }
         }
 
-        function saveSalesHistory() {
-            localStorage.setItem('sales_history', JSON.stringify(salesHistory));
+        async function saveSalesHistory() {
+            try {
+                // Salvar no backend
+                const response = await fetch(`${API_BASE_URL}/api/sales-history`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ salesHistory })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    console.log('✅ Histórico de vendas salvo no backend');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao salvar histórico no backend, usando localStorage:', error);
+                // Fallback para localStorage
+                localStorage.setItem('sales_history', JSON.stringify(salesHistory));
+            }
         }
 
-        function addSaleToHistory(cartItems, total) {
+        async function addSaleToHistory(cartItems, total) {
             const today = new Date();
             const dayOfWeek = today.getDay(); // 0 = Domingo, 1 = Segunda, etc.
             const dateString = today.toLocaleDateString('pt-BR');
@@ -2717,8 +2753,59 @@
             todaySale.totalQuantity = todaySale.items.reduce((sum, item) => sum + item.quantity, 0);
             todaySale.totalValue = todaySale.items.reduce((sum, item) => sum + item.subtotal, 0);
             
-            saveSalesHistory();
+            // Salvar no backend
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/sales-history`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        saleData: {
+                            date: todaySale.date,
+                            dayOfWeek: todaySale.dayOfWeek,
+                            items: todaySale.items,
+                            totalQuantity: todaySale.totalQuantity,
+                            totalValue: todaySale.totalValue
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    console.log('✅ Venda registrada no histórico do backend');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao salvar venda no backend:', error);
+                // Fallback para localStorage
+                await saveSalesHistory();
+            }
+            
             renderSalesHistory();
+        }
+
+        async function resetSalesHistory() {
+            if (confirm('Tem certeza que deseja zerar todas as vendas da semana? Esta ação não pode ser desfeita.')) {
+                salesHistory = [];
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/sales-history/reset`, {
+                        method: 'POST'
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        console.log('✅ Histórico de vendas zerado no backend');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao zerar histórico no backend:', error);
+                    // Fallback para localStorage
+                    await saveSalesHistory();
+                }
+                
+                renderSalesHistory();
+                showToast('Vendas da semana zeradas com sucesso!', 'success');
+            }
         }
 
         function renderSalesHistory() {
@@ -2795,15 +2882,6 @@
                 
                 elements.salesHistoryList.appendChild(saleRow);
             });
-        }
-
-        function resetSalesHistory() {
-            if (confirm('Tem certeza que deseja zerar todas as vendas da semana? Esta ação não pode ser desfeita.')) {
-                salesHistory = [];
-                saveSalesHistory();
-                renderSalesHistory();
-                showToast('Vendas da semana zeradas com sucesso!', 'success');
-            }
         }
 
         async function saveProducts() {
@@ -3602,7 +3680,7 @@
             if (sortBy === 'price-asc') {
                 filteredProducts.sort((a, b) => a.price - b.price);
             } else if (sortBy === 'price-desc') {
-                filteredProducts.sort((a, b) => b.price - b.price);
+                filteredProducts.sort((a, b) => b.price - a.price);
             } else {
                 // Ordem padrão (display_order)
                 filteredProducts.sort((a, b) => {
@@ -3976,8 +4054,8 @@
             // Abrir WhatsApp em nova aba/guia para não interromper o processo
             window.open(whatsappUrl, '_blank');
             
-            // REGISTRAR VENDA NO HISTÓRICO
-            addSaleToHistory(cart, total);
+            // REGISTRAR VENDA NO HISTÓRICO - AGORA FUNCIONA EM TODOS OS DISPOSITIVOS
+            await addSaleToHistory(cart, total);
             
             // Enviar atualização de estoque em background (não bloquear o usuário)
             try {
