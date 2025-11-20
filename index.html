@@ -1991,6 +1991,7 @@
         // ATUALIZE ESTA URL PARA SEU BACKEND NO RENDER
         const API_BASE_URL = "https://backend-vercel-tawny.vercel.app";
         const DELIVERY_FEE = 3.00; // Taxa de entrega de R$ 3,00
+        const MINIMUM_ORDER_FOR_FREE_SHIPPING = 10.00; // Valor mínimo para frete grátis
 
         // ===== SISTEMA DE AUTENTICAÇÃO =====
         function simpleEncrypt(text) {
@@ -3279,6 +3280,11 @@
         }
 
         // ===== FUNÇÕES DE CUPOM =====
+        // NOVA FUNÇÃO: Calcular total dos produtos sem entrega
+        function calculateProductsTotal() {
+            return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        }
+
         async function applyCoupon() {
             const couponCode = elements.couponInput.value.trim().toUpperCase();
             
@@ -3295,6 +3301,24 @@
                 
                 if (activeCoupons.length > 0) {
                     const coupon = activeCoupons[0];
+                    
+                    // VERIFICAÇÃO DO VALOR MÍNIMO PARA FRETE GRÁTIS
+                    const productsTotal = calculateProductsTotal();
+                    
+                    if (productsTotal < MINIMUM_ORDER_FOR_FREE_SHIPPING) {
+                        appliedCoupon = null;
+                        elements.couponSuccess.style.display = 'none';
+                        elements.couponError.style.display = 'block';
+                        elements.couponErrorMessage.textContent = `Cupom válido, mas pedido mínimo para frete grátis é R$ ${MINIMUM_ORDER_FOR_FREE_SHIPPING.toFixed(2).replace('.', ',')}. Seu pedido atual é R$ ${productsTotal.toFixed(2).replace('.', ',')}.`;
+                        elements.couponApplied.classList.add('hidden');
+                        
+                        // Atualizar total
+                        updateModalTotal(true);
+                        
+                        showToast(`Pedido mínimo para frete grátis é R$ ${MINIMUM_ORDER_FOR_FREE_SHIPPING.toFixed(2).replace('.', ',')}`, 'warning');
+                        return;
+                    }
+                    
                     appliedCoupon = coupon;
                     
                     // Mostrar sucesso
@@ -3817,7 +3841,7 @@
                         <div class="md:col-span-2 flex items-center justify-center cart-item-controls">
                             <button class="decrease-quantity w-8 h-8 rounded-full border hover:bg-gray-100" data-id="${item.id}" data-sabor-index="${item.saborIndex}">-</button>
                             <span class="mx-3 font-medium">${item.quantity}</span>
-                            <button class="increase-quantity w-8 h-8 rounded-full border hover:bg-gray-100" data-id="${item.id}" data-sabor-index="${item.saborIndex}">+</button>
+                            <button class="increase-quantity w-8 h-8 rounded-full border hover:bg-gray-100" data-id="${item.id}" data-saborIndex="${item.saborIndex}">+</button>
                         </div>
                         
                         <div class="md:col-span-2 text-right">
